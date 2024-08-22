@@ -1,4 +1,3 @@
-
 //src\lib\HighlightSearch.tsx
 import React from 'react';
 
@@ -51,4 +50,6 @@ const HighlightSearch: React.FC<HighlightSearchProps> = ({
     );
 };
 
-export default HighlightSearch;
+// export default HighlightSearch;
+export default React.memo(HighlightSearch);
+

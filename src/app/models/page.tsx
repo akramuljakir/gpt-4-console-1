@@ -20,6 +20,40 @@ export default function ModelSelectionPage() {
     // Filter models based on the search query using searchModels function
     const filteredModels = searchModels(availableModels, searchQuery);
 
+    // Function to highlight matches with multiple search terms
+    // const highlightMatch = (text: string, query: string) => {
+    //     if (!query) return text;
+
+    //     // Split the search query into individual terms and create a regex for each
+    //     const searchTerms = normalizeString(query).split(/\s+/).filter(Boolean);
+
+    //     // Track color assignment for each search term
+    //     const coloredTerms = searchTerms.map((term, index) => ({
+    //         term,
+    //         color: highlightColors[index % highlightColors.length]
+    //     }));
+
+    //     // Use regex to replace each search term with a colored span
+    //     let highlightedText = text;
+
+    //     // For each term, we replace matches in the text
+    //     coloredTerms.forEach(({ term, color }) => {
+    //         const regex = new RegExp(`(${term})`, 'gi'); // Create a regex for the term (case insensitive)
+    //         highlightedText = highlightedText.split(regex).map((part, index) => {
+    //             // If the part matches the term, highlight it
+    //             if (normalizeString(part) === normalizeString(term)) {
+    //                 return (
+    //                     <span key={`${term}-${index}`} className={color}>
+    //                         {part}
+    //                     </span>
+    //                 );
+    //             }
+    //             return part;
+    //         });
+    //     });
+
+    //     return highlightedText;
+    // };
 
     // Handle form submission when selecting a model
     const handleSubmit = () => {
