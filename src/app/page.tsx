@@ -1,45 +1,75 @@
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
+import availableModels from '@/lib/AiModelName'; // Import models from AiModelName.ts
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [chatHistory, setChatHistory] = useState<{ id: string; label: string; messages: { role: string; content: string }[] }[]>([]);
+  const [chatHistory, setChatHistory] = useState<{ id: string; label: string; model: string; messages: { role: string; content: string }[] }[]>([]);
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
   const [editingLabel, setEditingLabel] = useState<string | null>(null);
   const [newLabel, setNewLabel] = useState('');
 
+  // Track the selected model
+  // const [selectedModel, setSelectedModel] = useState(availableModels[0].model_string_for_api);
+  const [selectedModel, setSelectedModel] = useState([]);
   // Token limit (example: 4096 tokens for GPT models)
   const TOKEN_LIMIT = 4096;
 
-  // Load chat history from localStorage on component mount
+  // Create a ref for the message container
+  const messageContainerRef = useRef<HTMLDivElement>(null);
+
+  // Scroll to the bottom of the message container
+  const scrollToBottom = () => {
+    if (messageContainerRef.current) {
+      messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+    }
+  };
+
+  // Load chat history and last selected model from localStorage on component mount
   useEffect(() => {
     const storedChats = localStorage.getItem('chatHistory');
+    const storedModel = localStorage.getItem('selectedModel');
+
     if (storedChats) {
       try {
         const parsedChats = JSON.parse(storedChats);
-        setChatHistory(parsedChats); // Restore from localStorage
+        setChatHistory(parsedChats); // Restore chat history from localStorage
       } catch (error) {
         console.error("Error parsing localStorage chatHistory:", error);
         localStorage.removeItem('chatHistory'); // If corrupted, reset storage
       }
     }
+
+    if (storedModel) {
+      setSelectedModel(storedModel); // Restore the last selected model from localStorage
+    }
   }, []);
 
-  // Save chat history to localStorage whenever chatHistory updates
+  // Save chat history and selected model to localStorage whenever they change
   useEffect(() => {
     if (chatHistory.length > 0) {
       localStorage.setItem('chatHistory', JSON.stringify(chatHistory));
     }
   }, [chatHistory]);
 
-  // Handle selecting a chat session from the sidebar
+  useEffect(() => {
+    localStorage.setItem('selectedModel', selectedModel);
+  }, [selectedModel]);
+
+  // Scroll to bottom whenever messages change (after new messages are added)
+  useEffect(() => {
+    scrollToBottom(); // Scroll down after each message is added
+  }, [messages]);
+
+  // Handle selecting a chat session from the sidebar and restoring the model
   const selectChat = (id: string) => {
     const chat = chatHistory.find((chat) => chat.id === id);
     if (chat) {
       setMessages(chat.messages);
+      setSelectedModel(chat.model); // Restore the selected model for this chat
       setSelectedChat(id);
     }
   };
@@ -93,8 +123,6 @@ export default function ChatPage() {
       // Limit message context to TOKEN_LIMIT before sending
       const limitedMessages = limitMessageContext(newMessages);
 
-      console.log('Message context being sent to API:', limitedMessages)
-
       const res = await fetch('/api/aimlapi', {
         method: 'POST',
         headers: {
@@ -102,6 +130,7 @@ export default function ChatPage() {
         },
         body: JSON.stringify({
           prompt: input,
+          model: selectedModel, // Send selected model with the request
           messages: limitedMessages // Send only the relevant message context
         }),
       });
@@ -114,7 +143,7 @@ export default function ChatPage() {
         // New chat session, generate label by combining multiple messages if needed
         const chatId = Date.now().toString();
         const label = generateLabelFromMessages(updatedMessages); // Generate label
-        setChatHistory([{ id: chatId, label: label, messages: updatedMessages }, ...chatHistory]);
+        setChatHistory([{ id: chatId, label: label, model: selectedModel, messages: updatedMessages }, ...chatHistory]);
         setSelectedChat(chatId);
       } else {
         // Update existing chat
@@ -169,7 +198,24 @@ export default function ChatPage() {
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md">
           New Chat
         </button>
-        <div className="overflow-y-auto space-y-2">
+
+        {/* Dropdown to select a model */}
+        <div className="mb-4">
+          <label className="text-sm text-gray-300">Select Model:</label>
+          <select
+            className="w-full bg-gray-700 text-white p-2 rounded-md"
+            value={selectedModel}
+            onChange={(e) => setSelectedModel(e.target.value)}
+          >
+            {availableModels.map((model) => (
+              <option key={model.model_string_for_api} value={model.model_string_for_api}>
+                {model.model_name} - {model.organization}
+              </option>
+            ))}
+          </select>
+        </div>
+        {/* Chat history with a scrollbar */}
+        <div className="overflow-y-auto space-y-2 h-[calc(100vh-180px)]">
           {chatHistory.map((chat) => (
             <div key={chat.id} className="flex items-center justify-between">
               {/* Show label or edit input */}
@@ -210,7 +256,7 @@ export default function ChatPage() {
       {/* Main chat area */}
       <div className="flex flex-col w-3/4 h-full bg-gray-100 justify-between">
         {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-6">
+        <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-6">
           {messages.map((message, index) => (
             <div
               key={index}
