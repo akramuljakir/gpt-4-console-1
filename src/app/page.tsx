@@ -2,6 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import availableModels from '@/lib/AiModelName'; // Import models from AiModelName.ts
+import Link from 'next/link';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
@@ -190,9 +191,9 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex h-screen text-sm">
       {/* Sidebar */}
-      <div className="w-1/4 bg-gray-800 text-white p-4 space-y-4">
+      <div className="w-1/4 bg-pink-200 p-4 space-y-4">
         <button
           onClick={newChatSession}
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md">
@@ -201,18 +202,22 @@ export default function ChatPage() {
 
         {/* Dropdown to select a model */}
         <div className="mb-4">
-          <label className="text-sm text-gray-300">Select Model:</label>
-          <select
-            className="w-full bg-gray-700 text-white p-2 rounded-md"
-            value={selectedModel}
-            onChange={(e) => setSelectedModel(e.target.value)}
-          >
-            {availableModels.map((model) => (
-              <option key={model.model_string_for_api} value={model.model_string_for_api}>
-                {model.model_name} - {model.organization}
-              </option>
-            ))}
-          </select>
+          <label className="text-sm text-gray-800">Select Model:</label>
+          <div className='flex'>
+            <select
+              className="w-full bg-white text-blue-800 p-2 rounded-md"
+              value={selectedModel}
+              onChange={(e) => setSelectedModel(e.target.value)}
+            >
+              {availableModels.map((model) => (
+                <option key={model.model_string_for_api} value={model.model_string_for_api}>
+                  {model.model_name} - {model.organization}
+                </option>
+              ))}
+            </select>
+            {/* <button className=' bg-blue-500 text-white py-2 px-4 rounded-md' type="button">More..</button> */}
+            <div className='text-blue-500 border-2 border-blue-500 rounded-md p-2  ' > <Link href="/models">More..</Link></div>
+          </div>
         </div>
         {/* Chat history with a scrollbar */}
         <div className="overflow-y-auto space-y-2 h-[calc(100vh-180px)]">
@@ -228,7 +233,7 @@ export default function ChatPage() {
               ) : (
                 <button
                   onClick={() => selectChat(chat.id)}
-                  className={`flex-1 text-left py-2 px-4 rounded-md ${selectedChat === chat.id ? 'bg-blue-500' : 'bg-gray-700'
+                  className={`flex-1 text-left py-2 px-4 rounded-md ${selectedChat === chat.id ? 'bg-blue-200' : 'bg-gray-400'
                     }`}
                 >
                   {chat.label}
