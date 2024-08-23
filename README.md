@@ -1,6 +1,8 @@
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
+### Nearly 100 AI models are available for free, but only for limited educational purposes.
+#### Paid, unlimited access to APIs is available, commonly through third-party payment options 
 
 First, run the development server:
 
@@ -20,7 +22,9 @@ You can start editing the page by modifying `app/page.tsx`. The page auto-update
 
 This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-![Screenshot 2024-08-22 03 13 36](https://github.com/user-attachments/assets/c9527d18-9bf0-43e6-877b-fd2fce5494c3)
+![Screenshot 2024-08-24 03 46 46](https://github.com/user-attachments/assets/370b504b-0328-4eeb-bf33-8312273be26a)
+
+![Screenshot 2024-08-24 03 46 15](https://github.com/user-attachments/assets/0180ed50-31bf-410b-95f0-70f2ff90b7b9)
 
 
 ## Learn More
