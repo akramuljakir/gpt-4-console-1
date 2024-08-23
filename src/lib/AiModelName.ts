@@ -1069,7 +1069,7 @@ const availableModels = [
         "cost": "High",
         "known_for": "Conversational tasks with a creative focus",
         "specialty": "Handling conversational creativity and complex responses",
-        "use_suggestion": "Perfect for content generation, creative writing, or brainstorming."
+        "use_suggestion": "Perfect for content generation, creative writing, or brainstorming. GPT-4"
     },
     {
         "organization": "Anthropic",

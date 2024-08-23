@@ -1,59 +1,17 @@
-//src\app\models\page.tsx
+// src/app/models/page.tsx
 
 "use client"
-
-import HighlightSearch from '@/lib/HighlightSearch';
 
 import { useState } from 'react';
 import availableModels from '@/lib/AiModelName'; // Import the models
 import { searchModels, normalizeString } from '@/lib/ModelSearch';
 
 export default function ModelSelectionPage() {
-
-
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
 
-    // Predefined colors for highlighting
-    const highlightColors = ['bg-yellow-300', 'bg-green-300', 'bg-blue-300', 'bg-pink-300'];
-
     // Filter models based on the search query using searchModels function
     const filteredModels = searchModels(availableModels, searchQuery);
-
-    // Function to highlight matches with multiple search terms
-    // const highlightMatch = (text: string, query: string) => {
-    //     if (!query) return text;
-
-    //     // Split the search query into individual terms and create a regex for each
-    //     const searchTerms = normalizeString(query).split(/\s+/).filter(Boolean);
-
-    //     // Track color assignment for each search term
-    //     const coloredTerms = searchTerms.map((term, index) => ({
-    //         term,
-    //         color: highlightColors[index % highlightColors.length]
-    //     }));
-
-    //     // Use regex to replace each search term with a colored span
-    //     let highlightedText = text;
-
-    //     // For each term, we replace matches in the text
-    //     coloredTerms.forEach(({ term, color }) => {
-    //         const regex = new RegExp(`(${term})`, 'gi'); // Create a regex for the term (case insensitive)
-    //         highlightedText = highlightedText.split(regex).map((part, index) => {
-    //             // If the part matches the term, highlight it
-    //             if (normalizeString(part) === normalizeString(term)) {
-    //                 return (
-    //                     <span key={`${term}-${index}`} className={color}>
-    //                         {part}
-    //                     </span>
-    //                 );
-    //             }
-    //             return part;
-    //         });
-    //     });
-
-    //     return highlightedText;
-    // };
 
     // Handle form submission when selecting a model
     const handleSubmit = () => {
@@ -105,12 +63,8 @@ export default function ModelSelectionPage() {
                                 className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                             />
                             <div>
-                                <h2 className="text-lg font-bold">
-                                    <HighlightSearch text={model.model_name} query={searchQuery} />
-                                </h2>
-                                <p className="text-sm text-gray-600">
-                                    <HighlightSearch text={model.organization} query={searchQuery} />
-                                </p>
+                                <h2 className="text-lg font-bold">{model.model_name}</h2>
+                                <p className="text-sm text-gray-600">{model.organization}</p>
                             </div>
                         </div>
 
@@ -118,40 +72,36 @@ export default function ModelSelectionPage() {
                         <div className="mb-2">
                             <p>
                                 <span className="font-semibold">API String: </span>
-                                <HighlightSearch text={model.model_string_for_api} query={searchQuery} />
+                                {model.model_string_for_api}
                             </p>
                             <p>
                                 <span className="font-semibold">Context Size: </span>
-                                <HighlightSearch text={model.context_length} query={searchQuery} />
+                                {model.context_length}
                             </p>
                             <p>
                                 <span className="font-semibold">Response Time: </span>
-                                <HighlightSearch text={model.response_time} query={searchQuery} />
+                                {model.response_time || 'Unknown'}
                             </p>
                             <p>
                                 <span className="font-semibold">Cost: </span>
-                                <HighlightSearch text={model.cost} query={searchQuery} />
+                                {model.cost || 'Unknown'}
                             </p>
                             <p>
-                                <span className="font-semibold">Model Type: </span>
-                                <HighlightSearch text={model.modeltype} query={searchQuery} />
+                                <span className="font-semibold">Description: </span>
+                                {model.description || 'N/A'}
                             </p>
                             <p>
-                                <span className="font-semibold">Description:</span>
-                                <HighlightSearch text={model.description} query={searchQuery} />
+                                <span className="font-semibold">Known For: </span>
+                                {model.known_for || 'N/A'}
                             </p>
 
                             <p>
-                                <span className="font-semibold">Known For: </span>
-                                <HighlightSearch text={model.known_for} query={searchQuery} />
-                            </p>
-                            <p>
                                 <span className="font-semibold">Specialty: </span>
-                                <HighlightSearch text={model.specialty} query={searchQuery} />
+                                {model.specialty || 'N/A'}
                             </p>
                             <p>
                                 <span className="font-semibold">Use Case Suggestions: </span>
-                                <HighlightSearch text={model.use_suggestion} query={searchQuery} />
+                                {model.use_suggestion || 'General Use'}
                             </p>
                         </div>
                     </div>
