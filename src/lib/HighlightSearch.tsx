@@ -53,3 +53,4 @@ const HighlightSearch: React.FC<HighlightSearchProps> = ({
 // export default HighlightSearch;
 export default React.memo(HighlightSearch);
 
+// Copyright 2024 Akramul Jakir

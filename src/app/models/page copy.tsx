@@ -1,17 +1,25 @@
-// src/app/models/page.tsx
+//src\app\models\page.tsx
 
 "use client"
+
+import HighlightSearch from '@/lib/HighlightSearch';
 
 import { useState } from 'react';
 import availableModels from '@/lib/AiModelName'; // Import the models
 import { searchModels, normalizeString } from '@/lib/ModelSearch';
 
 export default function ModelSelectionPage() {
+
+
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
 
+    // Predefined colors for highlighting
+    const highlightColors = ['bg-yellow-300', 'bg-green-300', 'bg-blue-300', 'bg-pink-300'];
+
     // Filter models based on the search query using searchModels function
     const filteredModels = searchModels(availableModels, searchQuery);
+
 
     // Handle form submission when selecting a model
     const handleSubmit = () => {
@@ -63,8 +71,12 @@ export default function ModelSelectionPage() {
                                 className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                             />
                             <div>
-                                <h2 className="text-lg font-bold">{model.model_name}</h2>
-                                <p className="text-sm text-gray-600">{model.organization}</p>
+                                <h2 className="text-lg font-bold">
+                                    <HighlightSearch text={model.model_name} query={searchQuery} />
+                                </h2>
+                                <p className="text-sm text-gray-600">
+                                    <HighlightSearch text={model.organization} query={searchQuery} />
+                                </p>
                             </div>
                         </div>
 
@@ -72,36 +84,40 @@ export default function ModelSelectionPage() {
                         <div className="mb-2">
                             <p>
                                 <span className="font-semibold">API String: </span>
-                                {model.model_string_for_api}
+                                <HighlightSearch text={model.model_string_for_api} query={searchQuery} />
                             </p>
                             <p>
                                 <span className="font-semibold">Context Size: </span>
-                                {model.context_length}
+                                <HighlightSearch text={model.context_length} query={searchQuery} />
                             </p>
                             <p>
                                 <span className="font-semibold">Response Time: </span>
-                                {model.response_time || 'Unknown'}
+                                <HighlightSearch text={model.response_time} query={searchQuery} />
                             </p>
                             <p>
                                 <span className="font-semibold">Cost: </span>
-                                {model.cost || 'Unknown'}
+                                <HighlightSearch text={model.cost} query={searchQuery} />
                             </p>
                             <p>
-                                <span className="font-semibold">Description: </span>
-                                {model.description || 'N/A'}
+                                <span className="font-semibold">Model Type: </span>
+                                <HighlightSearch text={model.modeltype} query={searchQuery} />
                             </p>
                             <p>
-                                <span className="font-semibold">Known For: </span>
-                                {model.known_for || 'N/A'}
+                                <span className="font-semibold">Description:</span>
+                                <HighlightSearch text={model.description} query={searchQuery} />
                             </p>
 
                             <p>
+                                <span className="font-semibold">Known For: </span>
+                                <HighlightSearch text={model.known_for} query={searchQuery} />
+                            </p>
+                            <p>
                                 <span className="font-semibold">Specialty: </span>
-                                {model.specialty || 'N/A'}
+                                <HighlightSearch text={model.specialty} query={searchQuery} />
                             </p>
                             <p>
                                 <span className="font-semibold">Use Case Suggestions: </span>
-                                {model.use_suggestion || 'General Use'}
+                                <HighlightSearch text={model.use_suggestion} query={searchQuery} />
                             </p>
                         </div>
                     </div>
