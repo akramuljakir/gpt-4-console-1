@@ -11,7 +11,7 @@ export async function POST(request: Request) {
 
     try {
         const body = await request.json();
-        const { prompt, messages } = body;
+        const { prompt, messages, model } = body;
 
         if (!prompt) {
             return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
@@ -21,9 +21,11 @@ export async function POST(request: Request) {
         console.log('Message context received from client:', messages);
 
         const response = await axios.post(
-            'https://api.aimlapi.com/v1/chat/completions',
+            // 'https://api.aimlapi.com/v1/chat/completions',
+            'https://api.aimlapi.com/chat/completions',
             {
-                model: "mistralai/Mistral-7B-Instruct-v0.2",
+                // model: "mistralai/Mistral-7B-Instruct-v0.2",
+                model: model,
                 messages: messages, // Message context being sent to AIML API
                 max_tokens: 100,    // Example token limit
                 temperature: 0.7,   // Example temperature setting
