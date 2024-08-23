@@ -16,7 +16,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>{children}
+        <footer>
+          {/* Copyright Notice */}
+          <div className="py-2 px-6 bg-transparent  text-gray-500 fixed bottom-0">
+            &copy; {new Date().getFullYear()} Akramul Jakir
+          </div>
+        </footer>
+      </body>
     </html>
   );
 }

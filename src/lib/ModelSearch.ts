@@ -81,3 +81,4 @@ export const searchModels = (availableModels: any[], searchQuery: string) => {
         .filter((model) => model.priority > 0) // Filter out models with no priority
         .sort((a, b) => b.priority - a.priority); // Sort models by priority in descending order
 };
+// Copyright 2024 Akramul Jakir

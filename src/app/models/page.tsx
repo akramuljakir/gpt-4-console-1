@@ -3,65 +3,36 @@
 "use client"
 
 import HighlightSearch from '@/lib/HighlightSearch';
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import availableModels from '@/lib/AiModelName'; // Import the models
-import { searchModels, normalizeString } from '@/lib/ModelSearch';
+import { searchModels } from '@/lib/ModelSearch';
 
 export default function ModelSelectionPage() {
-
-
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
     const [searchQuery, setSearchQuery] = useState<string>('');
+    const [lastSelectedModel, setLastSelectedModel] = useState<string | null>(null); // Track last selected model
 
-    // Predefined colors for highlighting
-    const highlightColors = ['bg-yellow-300', 'bg-green-300', 'bg-blue-300', 'bg-pink-300'];
+    // On component mount, check if there's a selected model in localStorage
+    useEffect(() => {
+        const savedModel = localStorage.getItem('selectedModel');
+        if (savedModel) {
+            setSelectedModel(savedModel);
+        }
+    }, []);
 
-    // Filter models based on the search query using searchModels function
+    // Save the selected model to localStorage on change
+    const handleModelChange = (model: string) => {
+        setLastSelectedModel(selectedModel); // Track the previously selected model
+        setSelectedModel(model);
+        localStorage.setItem('selectedModel', model);
+    };
+
+    // Filter models based on the search query
     const filteredModels = searchModels(availableModels, searchQuery);
 
-    // Function to highlight matches with multiple search terms
-    // const highlightMatch = (text: string, query: string) => {
-    //     if (!query) return text;
-
-    //     // Split the search query into individual terms and create a regex for each
-    //     const searchTerms = normalizeString(query).split(/\s+/).filter(Boolean);
-
-    //     // Track color assignment for each search term
-    //     const coloredTerms = searchTerms.map((term, index) => ({
-    //         term,
-    //         color: highlightColors[index % highlightColors.length]
-    //     }));
-
-    //     // Use regex to replace each search term with a colored span
-    //     let highlightedText = text;
-
-    //     // For each term, we replace matches in the text
-    //     coloredTerms.forEach(({ term, color }) => {
-    //         const regex = new RegExp(`(${term})`, 'gi'); // Create a regex for the term (case insensitive)
-    //         highlightedText = highlightedText.split(regex).map((part, index) => {
-    //             // If the part matches the term, highlight it
-    //             if (normalizeString(part) === normalizeString(term)) {
-    //                 return (
-    //                     <span key={`${term}-${index}`} className={color}>
-    //                         {part}
-    //                     </span>
-    //                 );
-    //             }
-    //             return part;
-    //         });
-    //     });
-
-    //     return highlightedText;
-    // };
-
-    // Handle form submission when selecting a model
-    const handleSubmit = () => {
-        if (selectedModel) {
-            // Store the selected model in localStorage and redirect back to the chat page
-            localStorage.setItem('selectedModel', selectedModel);
-            window.location.href = '/'; // Redirect back to the main chat page
-        }
+    // Navigate back to the homepage without selecting a model
+    const handleNavigateHome = () => {
+        window.location.href = '/';
     };
 
     return (
@@ -73,8 +44,8 @@ export default function ModelSelectionPage() {
                 </p>
             </div>
 
-            {/* Search Bar */}
-            <div className="mb-6">
+            {/* Sticky Search Bar with Home Link */}
+            <div className="sticky top-0 z-10 bg-gray-100 mb-6 pb-2 flex justify-between items-center">
                 <input
                     type="text"
                     placeholder="Search by name, organization, or specialty..."
@@ -82,7 +53,26 @@ export default function ModelSelectionPage() {
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                 />
+                <a
+                    href="/"
+                    className="ml-4 text-blue-500 font-semibold hover:underline"
+                >
+                    Go to Homepage
+                </a>
             </div>
+
+            {/* Display the selected model at the top */}
+            {selectedModel && (
+                <div className="mb-6 p-4 border rounded-lg shadow-md bg-white border-blue-500">
+                    <h2 className="text-lg font-bold text-blue-500">Selected Model</h2>
+                    <p className="text-gray-700">You have selected:</p>
+                    <p className="text-md font-semibold">{selectedModel}</p>
+                    <p className="text-sm text-gray-500">
+                        Organization: {availableModels.find(model => model.model_string_for_api === selectedModel)?.organization || 'N/A'}<br />
+                        API String: {selectedModel}
+                    </p>
+                </div>
+            )}
 
             {/* Model List */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -101,7 +91,7 @@ export default function ModelSelectionPage() {
                                 name="model"
                                 value={model.model_string_for_api}
                                 checked={selectedModel === model.model_string_for_api}
-                                onChange={() => setSelectedModel(model.model_string_for_api)}
+                                onChange={() => handleModelChange(model.model_string_for_api)}
                                 className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
                             />
                             <div>
@@ -157,17 +147,7 @@ export default function ModelSelectionPage() {
                     </div>
                 ))}
             </div>
-
-            {/* Submit Button */}
-            <div className="mt-8">
-                <button
-                    className="w-full p-4 bg-blue-500 text-white rounded-lg font-bold hover:bg-blue-600 focus:outline-none"
-                    onClick={handleSubmit}
-                    disabled={!selectedModel}
-                >
-                    Select Model
-                </button>
-            </div>
         </div>
     );
 }
+// Copyright 2024 Akramul Jakir
