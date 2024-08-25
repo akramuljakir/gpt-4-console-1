@@ -1,8 +1,11 @@
+//sec/app/page.tsx
 'use client';
 import { useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import availableModels from '@/lib/AiModelName'; // Import models from AiModelName.ts
 import Link from 'next/link';
+import React from 'react';
+import { debounce } from 'lodash';
 
 export default function ChatPage() {
   const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
@@ -14,8 +17,7 @@ export default function ChatPage() {
   const [newLabel, setNewLabel] = useState('');
 
   // Track the selected model
-  // const [selectedModel, setSelectedModel] = useState(availableModels[0].model_string_for_api);
-  const [selectedModel, setSelectedModel] = useState([]);
+  const [selectedModel, setSelectedModel] = useState<string>(''); // Changed from null to an empty string
   // Token limit (example: 4096 tokens for GPT models)
   const TOKEN_LIMIT = 4096;
 
@@ -32,7 +34,15 @@ export default function ChatPage() {
   // Load chat history and last selected model from localStorage on component mount
   useEffect(() => {
     const storedChats = localStorage.getItem('chatHistory');
-    const storedModel = localStorage.getItem('selectedModel');
+    try {
+      const storedModel = localStorage.getItem('selectedModel');
+      if (storedModel) {
+        setSelectedModel(storedModel); // Restore the last selected model from localStorage
+      }
+    } catch (error) {
+      console.error("Error retrieving selected model from localStorage:", error);
+      localStorage.removeItem('selectedModel'); // If corrupted, reset storage
+    }
 
     if (storedChats) {
       try {
@@ -42,10 +52,6 @@ export default function ChatPage() {
         console.error("Error parsing localStorage chatHistory:", error);
         localStorage.removeItem('chatHistory'); // If corrupted, reset storage
       }
-    }
-
-    if (storedModel) {
-      setSelectedModel(storedModel); // Restore the last selected model from localStorage
     }
   }, []);
 
@@ -57,7 +63,9 @@ export default function ChatPage() {
   }, [chatHistory]);
 
   useEffect(() => {
-    localStorage.setItem('selectedModel', selectedModel);
+    if (selectedModel) {
+      localStorage.setItem('selectedModel', selectedModel);
+    }
   }, [selectedModel]);
 
   // Scroll to bottom whenever messages change (after new messages are added)
@@ -100,7 +108,7 @@ export default function ChatPage() {
     // Reverse loop to prioritize recent messages (chatbot remembers recent history better)
     for (let i = messages.length - 1; i >= 0; i--) {
       const message = messages[i];
-      const messageTokens = message.content.split(' ').length; // Basic token estimation
+      const messageTokens = message.content.split(/\s+/).length; // Basic token estimation with regex
       tokenCount += messageTokens;
 
       if (tokenCount > TOKEN_LIMIT) break; // Stop if token limit exceeded
@@ -110,6 +118,11 @@ export default function ChatPage() {
 
     return limitedMessages;
   };
+
+  // Debounced sendMessage function
+  const debouncedSendMessage = debounce(() => {
+    sendMessage();
+  }, 300);
 
   // Send a message and update the chat history
   const sendMessage = async () => {
@@ -215,15 +228,15 @@ export default function ChatPage() {
                 </option>
               ))}
             </select>
-            {/* <button className=' bg-blue-500 text-white py-2 px-4 rounded-md' type="button">More..</button> */}
-            <div className='text-blue-500 border-2 border-blue-500 rounded-md p-2  ' > <Link href="/models">More..</Link></div>
+            <div className='text-blue-500 border-2 border-blue-500 rounded-md p-2  ' >
+              <Link href="/models">More..</Link>
+            </div>
           </div>
         </div>
         {/* Chat history with a scrollbar */}
         <div className="overflow-y-auto space-y-2 h-[calc(100vh-180px)]">
           {chatHistory.map((chat) => (
             <div key={chat.id} className="flex items-center justify-between">
-              {/* Show label or edit input */}
               {editingLabel === chat.id ? (
                 <input
                   value={newLabel}
@@ -233,14 +246,12 @@ export default function ChatPage() {
               ) : (
                 <button
                   onClick={() => selectChat(chat.id)}
-                  className={`flex-1 text-left py-2 px-4 rounded-md ${selectedChat === chat.id ? 'bg-blue-200' : 'bg-gray-400'
-                    }`}
+                  className={`flex-1 text-left py-2 px-4 rounded-md ${selectedChat === chat.id ? 'bg-blue-200' : 'bg-gray-400'}`}
                 >
                   {chat.label}
                 </button>
               )}
 
-              {/* Edit and Delete Icons */}
               {editingLabel === chat.id ? (
                 <button onClick={() => saveLabel(chat.id)} className="ml-2 text-green-400">
                   Save
@@ -263,15 +274,7 @@ export default function ChatPage() {
         {/* Messages */}
         <div ref={messageContainerRef} className="flex-1 overflow-y-auto p-6">
           {messages.map((message, index) => (
-            <div
-              key={index}
-              className={`p-3 mb-4 rounded-lg ${message.role === 'user'
-                ? 'bg-blue-500 text-white self-end'
-                : 'bg-gray-200 text-gray-900'
-                }`}
-            >
-              {message.content}
-            </div>
+            <Message key={index} message={message} />
           ))}
           {isLoading && <div className="text-center text-gray-500">Generating response...</div>}
         </div>
@@ -284,11 +287,22 @@ export default function ChatPage() {
             placeholder="Type your message..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
+            onKeyDown={(e) => e.key === 'Enter' && debouncedSendMessage()}
           />
         </div>
       </div>
     </div>
   );
 }
-// Copyright 2024 Akramul Jakir
+
+// Memoized Message component to avoid re-rendering
+const Message = React.memo(({ message }: { message: { role: string; content: string } }) => (
+  <div
+    className={`p-3 mb-4 rounded-lg ${message.role === 'user' ? 'bg-blue-500 text-white self-end' : 'bg-gray-200 text-gray-900'}`}
+  >
+    {message.content}
+  </div>
+));
+
+// Set display name to fix the ESLint issue
+Message.displayName = 'Message';
