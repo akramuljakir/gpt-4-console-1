@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import debounce from 'lodash/debounce';
 import availableModels from '@/lib/AiModelName'; // Import the models
 import { searchModels } from '@/lib/ModelSearch';
+import React from 'react';
 
 export default function ModelSelectionPage() {
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
