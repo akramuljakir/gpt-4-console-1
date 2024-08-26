@@ -212,7 +212,7 @@ export default function ChatPage() {
           className="w-full bg-blue-500 text-white py-2 px-4 rounded-md">
           New Chat
         </button>
-
+        <p className='text-center    center'>All Models may not work</p>
         {/* Dropdown to select a model */}
         <div className="mb-4">
           <label className="text-sm text-gray-800">Select Model:</label>
@@ -258,7 +258,7 @@ export default function ChatPage() {
                 </button>
               ) : (
                 <button onClick={() => handleEditLabel(chat.id)} className="ml-2">
-                  <Image src="/pencil.svg" alt="Edit" width={15} height={15} />
+                  <Image src="/pen.svg" alt="Edit" width={15} height={15} />
                 </button>
               )}
               <button onClick={() => deleteChat(chat.id)} className="ml-2">
