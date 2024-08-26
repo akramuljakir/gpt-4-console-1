@@ -5,6 +5,8 @@ import debounce from 'lodash/debounce';
 import availableModels from '@/lib/AiModelName'; // Import the models
 import { searchModels } from '@/lib/ModelSearch';
 import React from 'react';
+import HighlightSearch from '@/lib/HighlightSearch';
+import Link from 'next/link';
 
 export default function ModelSelectionPage() {
     const [selectedModel, setSelectedModel] = useState<string | null>(null);
@@ -59,9 +61,13 @@ export default function ModelSelectionPage() {
                     className="w-full p-4 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-400"
                     onChange={handleSearchChange} // Use the debounced change handler
                 />
-                <a href="/" className="ml-4 text-blue-500 font-semibold hover:underline">
+                <Link
+                    href="/"
+                    className="ml-4 text-white font-bold py-2 px-4 bg-gradient-to-r from-orange-400 to-red-500 hover:from-red-500 hover:to-orange-400 rounded-md shadow-lg transition-all duration-300 ease-in-out transform hover:scale-105"
+                >
                     Go to Homepage
-                </a>
+                </Link>
+
             </div>
 
             {/* Display the selected model at the top */}
@@ -85,6 +91,7 @@ export default function ModelSelectionPage() {
                         model={model}
                         handleModelChange={handleModelChange}
                         selectedModel={selectedModel}
+                        searchQuery={searchQuery}  // Pass the actual search query here
                     />
                 ))}
             </div>
@@ -93,10 +100,11 @@ export default function ModelSelectionPage() {
 }
 
 // Memoized Model component to avoid unnecessary re-renders
-const MemoizedModel = React.memo(({ model, handleModelChange, selectedModel }: {
+const MemoizedModel = React.memo(({ model, handleModelChange, selectedModel, searchQuery }: {
     model: any;
     handleModelChange: (model: string) => void;
     selectedModel: string | null;
+    searchQuery: string;  // Ensure the search query is passed here
 }) => (
     <div
         key={model.model_string_for_api}
@@ -113,8 +121,12 @@ const MemoizedModel = React.memo(({ model, handleModelChange, selectedModel }: {
                 className="mr-3 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
             />
             <div>
-                <h2 className="text-lg font-bold">{model.model_name}</h2>
-                <p className="text-sm text-gray-600">{model.organization}</p>
+                <h2 className="text-lg font-bold">
+                    <HighlightSearch text={model.model_name} query={searchQuery} />
+                </h2>
+                <p className="text-sm text-gray-600">
+                    <HighlightSearch text={model.organization} query={searchQuery} />
+                </p>
             </div>
         </div>
 
@@ -122,39 +134,40 @@ const MemoizedModel = React.memo(({ model, handleModelChange, selectedModel }: {
         <div className="mb-2">
             <p>
                 <span className="font-semibold">API String: </span>
-                {model.model_string_for_api}
+                <HighlightSearch text={model.model_string_for_api} query={searchQuery} />
             </p>
             <p>
                 <span className="font-semibold">Context Size: </span>
-                {model.context_length}
+                <HighlightSearch text={model.context_length} query={searchQuery} />
             </p>
             <p>
                 <span className="font-semibold">Response Time: </span>
-                {model.response_time}
+                <HighlightSearch text={model.response_time} query={searchQuery} />
             </p>
             <p>
                 <span className="font-semibold">Cost: </span>
-                {model.cost}
+                <HighlightSearch text={model.cost} query={searchQuery} />
             </p>
             <p>
                 <span className="font-semibold">Model Type: </span>
-                {model.modeltype}
+                <HighlightSearch text={model.modeltype} query={searchQuery} />
             </p>
             <p>
-                <span className="font-semibold">Description: </span>
-                {model.description}
+                <span className="font-semibold">Description:</span>
+                <HighlightSearch text={model.description} query={searchQuery} />
             </p>
+
             <p>
                 <span className="font-semibold">Known For: </span>
-                {model.known_for}
+                <HighlightSearch text={model.known_for} query={searchQuery} />
             </p>
             <p>
                 <span className="font-semibold">Specialty: </span>
-                {model.specialty}
+                <HighlightSearch text={model.specialty} query={searchQuery} />
             </p>
             <p>
                 <span className="font-semibold">Use Case Suggestions: </span>
-                {model.use_suggestion}
+                <HighlightSearch text={model.use_suggestion} query={searchQuery} />
             </p>
         </div>
     </div>
@@ -162,3 +175,5 @@ const MemoizedModel = React.memo(({ model, handleModelChange, selectedModel }: {
 
 // Set display name for MemoizedModel to avoid ESLint issues
 MemoizedModel.displayName = 'MemoizedModel';
+
+// Copyright 2024 Akramul Jakir
